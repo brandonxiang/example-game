@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Constraint</title>
+    <script src="./matter.min.js" type="text/javascript"></script>
+</head>
+<body>
+    <script>
+        var Engine = Matter.Engine,
+            Render = Matter.Render,
+            World = Matter.World,
+            Bodies = Matter.Bodies,
+            Constraint = Matter.Constraint;
+            MouseConstraint = Matter.MouseConstraint;
+
+        var engine = Engine.create();
+
+        var render = Render.create({
+            element: document.body,
+            engine: engine,
+            options: {
+                wireframes : false
+            }
+        })
+        
+        var rect = Bodies.rectangle(400,100, 50, 50, {
+            isStatic:true
+        }),
+        ball = Bodies.circle(400, 400, 50);
+
+        var mouseConstraint = MouseConstraint.create(engine, {
+            element: render.canvas
+        });
+
+        World.add(engine.world, mouseConstraint);
+
+        World.add(engine.world, [
+            rect,
+            ball,
+            Constraint.create({
+                bodyA: rect,
+                pointA: {
+                    x:0,
+                    y:0
+                },
+                bodyB: ball,
+                pointB: {
+                    x:0,
+                    y:-50
+                },
+                sniffness: 0.6
+            })
+        ])
+
+        Engine.run(engine);
+        Render.run(render);
+    </script>
+</body>
+</html>
