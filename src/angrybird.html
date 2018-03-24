@@ -26,7 +26,6 @@
 </head>
 
 <body>
-    <div id="btn" class="btn">随机施加一个力</div>
     <canvas id="panel" width="800" height="600" style="background:  0% 0% / contain rgb(250, 250, 250);"></canvas>
     <script src="matter.min.js"></script>
     <!-- <script src="base.js"></script> -->
@@ -39,6 +38,7 @@
             Composites = Matter.Composites,
             Body = Matter.Body,
             Constraint = Matter.Constraint,
+            Mouse = Matter.Mouse,
             MouseConstraint = Matter.MouseConstraint,
             Common = Matter.Common,
             Events = Matter.Events;
@@ -76,24 +76,44 @@
         var bird = Bodies.circle(100, 500 ,20, {
             density: 0.68, // 密度
             restitution: 1, // 弹性
+            isSleeping: true,
         });
 
+        function addForce(e){
+            var forceMagnitude = 0.08 * bird.mass;
 
-        // var constraint = Constraint.create({
-        //     pointA: { x: 600, y: 200 },
-        //     bodyB: bird,
-        //     length: 0
-        // });
+            var x = e.mouse.mouseupPosition.x - 100 
+            var y = e.mouse.mouseupPosition.y - 500
 
-        function addForce(){
+            var s = Math.sqrt(x*x + y*y);
 
-            var forceMagnitude = 0.02 * bird.mass;
             Body.applyForce(bird, bird.position, {
-                x : (forceMagnitude + Common.random() * forceMagnitude) * Common.choose([1, -1]),
-                y : -forceMagnitude + Common.random() * -forceMagnitude
+                x : - x/s * forceMagnitude ,
+                y : - y/s * forceMagnitude
             });
 
         }
+
+        var mouse = Mouse.create(render.canvas);
+        var mouseconstraint = MouseConstraint.create(engine, {
+            mouse: mouse,
+            constraint: {
+                // allow bodies on mouse to rotate
+                angularStiffness: 0,
+                render: {
+                    visible: false
+                }
+            }
+        });    
+
+        Events.on(mouseconstraint, "enddrag", function(e){
+
+            addForce(e)
+            console.log(e)
+        })
+
+
+
 
         // addForce();
         var offset = 5;
@@ -112,7 +132,6 @@
         Engine.run(engine);
         Render.run(render);
 
-        document.getElementById('btn').onclick = addForce;
     </script>
 </body>
 
