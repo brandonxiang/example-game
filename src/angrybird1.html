@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>愤怒鸟</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            padding: 0 20px;
+            height: 40px;
+            line-height: 40px;
+            color: #fff;
+            background-color: #e4393c;
+            text-align: center;
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="btn" class="btn">随机施加一个力</div>
+    <canvas id="panel" width="800" height="600" style="background:  0% 0% / contain rgb(250, 250, 250);"></canvas>
+    <script src="matter.min.js"></script>
+    <!-- <script src="base.js"></script> -->
+    <script>
+        // 简写
+        var Engine = Matter.Engine,
+            Render = Matter.Render,
+            World = Matter.World,
+            Bodies = Matter.Bodies,
+            Composites = Matter.Composites,
+            Body = Matter.Body,
+            Constraint = Matter.Constraint,
+            MouseConstraint = Matter.MouseConstraint,
+            Common = Matter.Common,
+            Events = Matter.Events;
+
+
+        // 创建引擎
+        var engine = Engine.create();
+
+        // 创建渲染器
+        var render = Render.create({
+            // element: document.getElementById('panel'),
+            canvas: document.getElementById('panel'),
+            engine: engine,
+            options: {
+                wireframes: false
+            }
+        });
+
+
+        // 鼠标约束
+        var mouseConstraint = MouseConstraint.create(engine, {
+            element: render.canvas
+        });
+
+        World.add(engine.world, mouseConstraint);
+
+        var boxA = Bodies.rectangle(400, 540, 80, 80, {isStatic: true});
+        var boxB = Bodies.rectangle(700, 540, 80, 80, {isStatic: true});
+        var boxC = Bodies.rectangle(550, 500, 80, 160, {isStatic: true});
+        var circleA = Bodies.circle(400, 300, 25);
+        var circleB = Bodies.circle(700, 300, 25);
+        var circleC = Bodies.circle(550, 300, 25);
+    
+
+        var bird = Bodies.circle(100, 500 ,20, {
+            density: 0.68, // 密度
+            restitution: 1, // 弹性
+        });
+
+
+        function addForce(){
+
+            var forceMagnitude = 0.02 * bird.mass;
+            Body.applyForce(bird, bird.position, {
+                x : (forceMagnitude + Common.random() * forceMagnitude) * Common.choose([1, -1]),
+                y : -forceMagnitude + Common.random() * -forceMagnitude
+            });
+
+        }
+
+        // addForce();
+        var offset = 5;
+        World.add(engine.world, [
+            Bodies.rectangle(400, -offset, 800.5 + 2 * offset, 50.5, { isStatic: true }),
+            Bodies.rectangle(400, 600 + offset, 800.5 + 2 * offset, 50.5, { isStatic: true }),
+            Bodies.rectangle(800 + offset, 300, 50.5, 600.5 + 2 * offset, { isStatic: true }),
+            Bodies.rectangle(-offset, 300, 50.5, 600.5 + 2 * offset, { isStatic: true })
+        ]);
+
+
+        World.add(engine.world, [boxA, boxB, boxC, circleA, circleB, circleC]);
+
+        World.add(engine.world, [bird]);
+        // 运行引擎
+        Engine.run(engine);
+        Render.run(render);
+
+        document.getElementById('btn').onclick = addForce;
+    </script>
+</body>
+
+</html>
